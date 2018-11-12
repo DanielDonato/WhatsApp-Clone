@@ -1,7 +1,9 @@
-package com.example.danieldonato.whatsappclone;
+package com.example.danieldonato.whatsappclone.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
+
+import com.example.danieldonato.whatsappclone.R;
 
 public class MainActivity extends Activity {
 

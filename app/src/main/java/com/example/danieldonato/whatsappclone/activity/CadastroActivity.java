@@ -1,6 +1,5 @@
 package com.example.danieldonato.whatsappclone.activity;
 
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
@@ -64,7 +63,7 @@ public class CadastroActivity extends AppCompatActivity {
         });
     }
 
-    public void validarCadastroUsuario(View view){
+    public void validarCadastroUsuario(View view) {
         String nome = campoNome.getText().toString();
         String email = campoEmail.getText().toString();
         String senha = campoSenha.getText().toString();

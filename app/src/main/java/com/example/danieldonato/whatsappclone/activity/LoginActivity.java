@@ -17,8 +17,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
+import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -89,4 +88,12 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser userAtual = autenticacao.getCurrentUser();
+        if(userAtual != null){
+            abrirTelaPrincipal();
+        }
+    }
 }

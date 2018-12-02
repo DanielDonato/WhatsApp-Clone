@@ -14,23 +14,38 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.example.danieldonato.whatsappclone.R;
+import com.example.danieldonato.whatsappclone.config.ConfiguracaoFirebase;
+import com.example.danieldonato.whatsappclone.helper.Base64Custom;
 import com.example.danieldonato.whatsappclone.helper.Permissao;
+import com.example.danieldonato.whatsappclone.helper.UsuarioFirebase;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.ByteArrayOutputStream;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ConfiguracoesActivity extends AppCompatActivity {
 
+    private StorageReference storageReference;
+
+    private ImageButton imageButtonCamera, imageButtonGaleria;
+    private CircleImageView circleImageViewPerfil;
+
+    private static final int SELECAO_CAMERA = 100;
+    private static final int SELECAO_GALERIA = 200;
+
+    private String identificadorUsuario;
     private String[] permissoesNecessarias = new String[] {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA
     };
-
-    private ImageButton imageButtonCamera, imageButtonGaleria;
-    private static final int SELECAO_CAMERA = 100;
-    private static final int SELECAO_GALERIA = 200;
-    private CircleImageView circleImageViewPerfil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +55,10 @@ public class ConfiguracoesActivity extends AppCompatActivity {
         imageButtonCamera = findViewById(R.id.imageButtomCamera);
         imageButtonGaleria = findViewById(R.id.imagemButtomGaleria);
         circleImageViewPerfil = findViewById(R.id.circleImageViewFotoPerfil);
+
+        //configurações iniciais
+        storageReference = ConfiguracaoFirebase.getFirebaseStorage();
+        identificadorUsuario = UsuarioFirebase.getIdentificadorUsuario();
 
         //validar permissoes
         Permissao.validarPermissoes(permissoesNecessarias, this, 1);
@@ -93,6 +112,26 @@ public class ConfiguracoesActivity extends AppCompatActivity {
                 }
                 if(imagem != null){
                     circleImageViewPerfil.setImageBitmap(imagem);
+
+                    //recuperar dados da imagem para o firebase
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    imagem.compress(Bitmap.CompressFormat.JPEG, 70, baos);
+                    byte[] dadosImagem = baos.toByteArray();
+
+                    //salvar imagem no firebase
+                    StorageReference imagemRef = storageReference.child("imagens").child("perfil").child(identificadorUsuario + ".jpeg");
+                    UploadTask uploadTask = imagemRef.putBytes(dadosImagem);
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(ConfiguracoesActivity.this, "Erro ao fazer upload da imagem", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Toast.makeText(ConfiguracoesActivity.this, "Sucesso ao fazer upload da imagem", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }catch (Exception e){
                 e.printStackTrace();

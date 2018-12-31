@@ -13,9 +13,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.danieldonato.whatsappclone.R;
 import com.example.danieldonato.whatsappclone.config.ConfiguracaoFirebase;
 import com.example.danieldonato.whatsappclone.helper.Base64Custom;
@@ -24,6 +26,7 @@ import com.example.danieldonato.whatsappclone.helper.UsuarioFirebase;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -37,6 +40,7 @@ public class ConfiguracoesActivity extends AppCompatActivity {
 
     private ImageButton imageButtonCamera, imageButtonGaleria;
     private CircleImageView circleImageViewPerfil;
+    private EditText editNome;
 
     private static final int SELECAO_CAMERA = 100;
     private static final int SELECAO_GALERIA = 200;
@@ -55,6 +59,7 @@ public class ConfiguracoesActivity extends AppCompatActivity {
         imageButtonCamera = findViewById(R.id.imageButtomCamera);
         imageButtonGaleria = findViewById(R.id.imagemButtomGaleria);
         circleImageViewPerfil = findViewById(R.id.circleImageViewFotoPerfil);
+        editNome = findViewById(R.id.editPerfilNome);
 
         //configurações iniciais
         storageReference = ConfiguracaoFirebase.getFirebaseStorage();
@@ -66,6 +71,19 @@ public class ConfiguracoesActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbarPrincipal);
         toolbar.setTitle("Configurações");
         setSupportActionBar(toolbar);
+
+        //Recuperar dados do usuario
+        FirebaseUser usuario = UsuarioFirebase.getUsuarioAtual();
+        Uri url = usuario.getPhotoUrl();
+        if(url != null){
+            Glide.with(ConfiguracoesActivity.this)
+                    .load(url)
+                    .into(circleImageViewPerfil);
+        }else {
+            circleImageViewPerfil.setImageResource(R.drawable.padrao);
+        }
+
+        editNome.setText(usuario.getDisplayName());
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -112,12 +130,10 @@ public class ConfiguracoesActivity extends AppCompatActivity {
                 }
                 if(imagem != null){
                     circleImageViewPerfil.setImageBitmap(imagem);
-
                     //recuperar dados da imagem para o firebase
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     imagem.compress(Bitmap.CompressFormat.JPEG, 70, baos);
                     byte[] dadosImagem = baos.toByteArray();
-
                     //salvar imagem no firebase
                     StorageReference imagemRef = storageReference.child("imagens").child("perfil").child(identificadorUsuario + ".jpeg");
                     UploadTask uploadTask = imagemRef.putBytes(dadosImagem);
@@ -130,6 +146,8 @@ public class ConfiguracoesActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Toast.makeText(ConfiguracoesActivity.this, "Sucesso ao fazer upload da imagem", Toast.LENGTH_SHORT).show();
+                            Uri uri = taskSnapshot.getDownloadUrl();
+                            atualizaFotoUsuario(uri);
                         }
                     });
                 }
@@ -137,6 +155,10 @@ public class ConfiguracoesActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void atualizaFotoUsuario(Uri uri){
+        UsuarioFirebase.atualizarFotoUsuario(uri);
     }
 
     @Override

@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.danieldonato.whatsappclone.config.ConfiguracaoFirebase;
+import com.example.danieldonato.whatsappclone.model.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -63,5 +64,18 @@ public class UsuarioFirebase {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static Usuario getDadosUsuarioLogado(){
+        FirebaseUser firebaseUser = getUsuarioAtual();
+        Usuario usuario = new Usuario();
+        usuario.setEmail(firebaseUser.getEmail());
+        usuario.setNome(firebaseUser.getDisplayName());
+        if(firebaseUser.getPhotoUrl() == null){
+            usuario.setSenha("");
+        } else {
+            usuario.setFoto(firebaseUser.getPhotoUrl().toString());
+        }
+        return usuario;
     }
 }

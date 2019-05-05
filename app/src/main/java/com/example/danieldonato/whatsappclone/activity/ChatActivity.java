@@ -109,7 +109,10 @@ public class ChatActivity extends AppCompatActivity {
             Mensagem mensagem = new Mensagem();
             mensagem.setIdUsuario(idUsuarioRemetente);
             mensagem.setMensagem(textoMensagem);
+            //salvar mensagem para o remetente
             salvarMensagem(idUsuarioRemetente, idUsuarioDestinatario, mensagem);
+            //salvar mensagem para o destinatario
+            salvarMensagem(idUsuarioDestinatario, idUsuarioRemetente, mensagem);
             editMensagem.setText("");
         }else {
             Toast.makeText(ChatActivity.this,

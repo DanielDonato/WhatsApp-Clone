@@ -26,6 +26,7 @@ import com.example.danieldonato.whatsappclone.adapter.MensagensAdapter;
 import com.example.danieldonato.whatsappclone.config.ConfiguracaoFirebase;
 import com.example.danieldonato.whatsappclone.helper.Base64Custom;
 import com.example.danieldonato.whatsappclone.helper.UsuarioFirebase;
+import com.example.danieldonato.whatsappclone.model.Conversa;
 import com.example.danieldonato.whatsappclone.model.Mensagem;
 import com.example.danieldonato.whatsappclone.model.Usuario;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -199,12 +200,24 @@ public class ChatActivity extends AppCompatActivity {
             salvarMensagem(idUsuarioRemetente, idUsuarioDestinatario, mensagem);
             //salvar mensagem para o destinatario
             salvarMensagem(idUsuarioDestinatario, idUsuarioRemetente, mensagem);
+            //salvar a conversa
+            salvarConversa(mensagem);
             editMensagem.setText("");
         }else {
             Toast.makeText(ChatActivity.this,
                     "Digite uma menagem para enviar!",
                     Toast.LENGTH_LONG).show();
         }
+    }
+
+
+    private void salvarConversa(Mensagem msg){
+        Conversa conversaRemente = new Conversa();
+        conversaRemente.setIdRemetente(idUsuarioRemetente);
+        conversaRemente.setIdDestinatario(idUsuarioDestinatario);
+        conversaRemente.setUltimaMensagem(msg.getMensagem());
+        conversaRemente.setUsuarioExibicao(usuarioDestinatario);
+        conversaRemente.salvar();
     }
 
     private void salvarMensagem(String idRemetente, String idDestinatario, Mensagem msg){

@@ -106,6 +106,28 @@ public class ConversasFragment extends Fragment {
         conversasRef.removeEventListener(childEventListenerConversas);
     }
 
+    public void pesquisarConversas(String texto){
+        List<Conversa> listaConversasBusca = new ArrayList<>();
+        texto = texto.toLowerCase();
+        for(Conversa conversa : listaConversas){
+            String nome = conversa.getUsuarioExibicao().getNome().toLowerCase();
+            String ultimaMensagem = conversa.getUltimaMensagem().toLowerCase();
+            if(nome.contains(texto)
+            || ultimaMensagem.contains(texto)){
+                listaConversasBusca.add(conversa);
+            }
+        }
+        adapter = new ConversasAdapter(listaConversasBusca, getActivity());
+        recyclerViewConversas.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
+    public void recarregarConversas(){
+        adapter = new ConversasAdapter(listaConversas, getActivity());
+        recyclerViewConversas.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
     public void recuperarConversas(){
 
         childEventListenerConversas = conversasRef.addChildEventListener(new ChildEventListener() {

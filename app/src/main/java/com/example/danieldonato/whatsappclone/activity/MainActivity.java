@@ -13,7 +13,9 @@ import com.example.danieldonato.whatsappclone.R;
 import com.example.danieldonato.whatsappclone.config.ConfiguracaoFirebase;
 import com.example.danieldonato.whatsappclone.fragment.ContatosFragment;
 import com.example.danieldonato.whatsappclone.fragment.ConversasFragment;
+import com.example.danieldonato.whatsappclone.model.Conversa;
 import com.google.firebase.auth.FirebaseAuth;
+import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
@@ -21,6 +23,7 @@ import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth autenticacao;
+    private MaterialSearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         //configura abas
-        FragmentPagerItemAdapter adapter = new FragmentPagerItemAdapter(
+        final FragmentPagerItemAdapter adapter = new FragmentPagerItemAdapter(
                     getSupportFragmentManager()
                     , FragmentPagerItems.with(this)
                         .add("Conversas", ConversasFragment.class)
@@ -45,12 +48,48 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
         SmartTabLayout viewPagerTab = findViewById(R.id.viewPagerTab);
         viewPagerTab.setViewPager(viewPager);
+
+        //configuracao do search view
+        searchView = findViewById(R.id.materialSearchPrincipal);
+        searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
+            @Override
+            public void onSearchViewShown() {
+
+            }
+
+            @Override
+            public void onSearchViewClosed() {
+                ConversasFragment fragment = (ConversasFragment) adapter.getPage(0);
+                fragment.recarregarConversas();
+            }
+        });
+        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                ConversasFragment fragment = (ConversasFragment) adapter.getPage(0);
+                if (newText != null && !newText.isEmpty()) {
+                    fragment.pesquisarConversas(newText);
+                }
+                return true;
+            }
+        });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu_main, menu);
+
+        //configurar botao pesquisa
+        MenuItem item = menu.findItem(R.id.menuPesquisa);
+        searchView.setMenuItem(item);
+
+
         return super.onCreateOptionsMenu(menu);
     }
 

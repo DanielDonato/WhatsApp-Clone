@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 
 import com.example.danieldonato.whatsappclone.R;
 import com.example.danieldonato.whatsappclone.activity.ChatActivity;
+import com.example.danieldonato.whatsappclone.activity.GrupoActivity;
 import com.example.danieldonato.whatsappclone.adapter.ContatosAdapter;
 import com.example.danieldonato.whatsappclone.config.ConfiguracaoFirebase;
 import com.example.danieldonato.whatsappclone.helper.RecyclerItemClickListener;
@@ -70,9 +71,15 @@ public class ContatosFragment extends Fragment {
                             @Override
                             public void onItemClick(View view, int position) {
                                 Usuario usuarioSelecionado = listaContatos.get(position);
-                                Intent i = new Intent(getActivity(), ChatActivity.class);
-                                i.putExtra("chatContato", usuarioSelecionado);
-                                startActivity(i);
+                                boolean cabecalho = usuarioSelecionado.getEmail().isEmpty();
+                                if(cabecalho){
+                                    Intent i = new Intent(getActivity(), GrupoActivity.class);
+                                    startActivity(i);
+                                }else {
+                                    Intent i = new Intent(getActivity(), ChatActivity.class);
+                                    i.putExtra("chatContato", usuarioSelecionado);
+                                    startActivity(i);
+                                }
                             }
 
                             @Override
@@ -87,6 +94,11 @@ public class ContatosFragment extends Fragment {
                         }
                 )
         );
+
+        Usuario itemGrupo = new Usuario();
+        itemGrupo.setNome("Novo Grupo");
+        itemGrupo.setEmail("");
+        listaContatos.add(itemGrupo);
         return view;
     }
 

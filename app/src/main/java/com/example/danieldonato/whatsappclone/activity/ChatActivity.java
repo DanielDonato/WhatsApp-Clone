@@ -209,15 +209,30 @@ public class ChatActivity extends AppCompatActivity {
     public void enviarMensagem(View view){
         String textoMensagem = editMensagem.getText().toString();
         if(!textoMensagem.isEmpty()){
-            Mensagem mensagem = new Mensagem();
-            mensagem.setIdUsuario(idUsuarioRemetente);
-            mensagem.setMensagem(textoMensagem);
-            //salvar mensagem para o remetente
-            salvarMensagem(idUsuarioRemetente, idUsuarioDestinatario, mensagem);
-            //salvar mensagem para o destinatario
-            salvarMensagem(idUsuarioDestinatario, idUsuarioRemetente, mensagem);
-            //salvar a conversa
-            salvarConversa(mensagem);
+
+            if(usuarioDestinatario != null){
+                Mensagem mensagem = new Mensagem();
+                mensagem.setIdUsuario(idUsuarioRemetente);
+                mensagem.setMensagem(textoMensagem);
+                //salvar mensagem para o remetente
+                salvarMensagem(idUsuarioRemetente, idUsuarioDestinatario, mensagem);
+                //salvar mensagem para o destinatario
+                salvarMensagem(idUsuarioDestinatario, idUsuarioRemetente, mensagem);
+                //salvar a conversa
+                salvarConversa(mensagem, false);
+            }else{
+                for(Usuario membro : grupo.getMembros()){
+                    String idRemetenteGrupo = Base64Custom.codificarBase64(membro.getEmail());
+                    String idUsuarioLogadoGrupo = UsuarioFirebase.getIdentificadorUsuario();
+
+                    Mensagem mensagem = new Mensagem();
+                    mensagem.setIdUsuario(idUsuarioLogadoGrupo);
+                    mensagem.setMensagem(textoMensagem);
+
+                    salvarMensagem(idRemetenteGrupo, idUsuarioDestinatario, mensagem);
+                    salvarConversa(mensagem, true);
+                }
+            }
             editMensagem.setText("");
         }else {
             Toast.makeText(ChatActivity.this,
@@ -227,12 +242,17 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
-    private void salvarConversa(Mensagem msg){
+    private void salvarConversa(Mensagem msg, boolean isGroup){
         Conversa conversaRemente = new Conversa();
         conversaRemente.setIdRemetente(idUsuarioRemetente);
         conversaRemente.setIdDestinatario(idUsuarioDestinatario);
         conversaRemente.setUltimaMensagem(msg.getMensagem());
-        conversaRemente.setUsuarioExibicao(usuarioDestinatario);
+        if(isGroup){
+            conversaRemente.setIsGroup("true");
+            conversaRemente.setGrupo(grupo);
+        }else{
+            conversaRemente.setUsuarioExibicao(usuarioDestinatario);
+        }
         conversaRemente.salvar();
     }
 

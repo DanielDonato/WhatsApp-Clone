@@ -3,10 +3,12 @@ package com.example.danieldonato.whatsappclone.model;
 public class Mensagem {
 
     private String idUsuario;
+    private String nome;
     private String mensagem;
     private String imagem;
 
     public Mensagem() {
+        setNome("");
     }
 
     public String getIdUsuario() {
@@ -31,5 +33,13 @@ public class Mensagem {
 
     public void setImagem(String imagem) {
         this.imagem = imagem;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 }

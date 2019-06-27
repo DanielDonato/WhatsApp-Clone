@@ -68,7 +68,8 @@ public class ConversasFragment extends Fragment {
                 new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        Conversa conversa = listaConversas.get(position);
+                        List<Conversa> conversasAtualizada = adapter.getConversas();
+                        Conversa conversa = conversasAtualizada.get(position);
                         Intent i = new Intent(getActivity(), ChatActivity.class);
                         if(conversa.getIsGroup().equals("true")){
                             i.putExtra("chatGrupo", conversa.getGrupo());
@@ -114,11 +115,21 @@ public class ConversasFragment extends Fragment {
         List<Conversa> listaConversasBusca = new ArrayList<>();
         texto = texto.toLowerCase();
         for(Conversa conversa : listaConversas){
-            String nome = conversa.getUsuarioExibicao().getNome().toLowerCase();
-            String ultimaMensagem = conversa.getUltimaMensagem().toLowerCase();
-            if(nome.contains(texto)
-            || ultimaMensagem.contains(texto)){
-                listaConversasBusca.add(conversa);
+
+            if(conversa.getUsuarioExibicao() != null){
+                String nome = conversa.getUsuarioExibicao().getNome().toLowerCase();
+                String ultimaMensagem = conversa.getUltimaMensagem().toLowerCase();
+                if(nome.contains(texto)
+                        || ultimaMensagem.contains(texto)){
+                    listaConversasBusca.add(conversa);
+                }
+            }else {
+                String nome = conversa.getGrupo().getNome().toLowerCase();
+                String ultimaMensagem = conversa.getUltimaMensagem().toLowerCase();
+                if(nome.contains(texto)
+                        || ultimaMensagem.contains(texto)){
+                    listaConversasBusca.add(conversa);
+                }
             }
         }
         adapter = new ConversasAdapter(listaConversasBusca, getActivity());

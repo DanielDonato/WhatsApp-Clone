@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.example.danieldonato.whatsappclone.R;
+import com.example.danieldonato.whatsappclone.adapter.ConversasAdapter;
 import com.example.danieldonato.whatsappclone.config.ConfiguracaoFirebase;
 import com.example.danieldonato.whatsappclone.fragment.ContatosFragment;
 import com.example.danieldonato.whatsappclone.fragment.ConversasFragment;
@@ -19,6 +20,9 @@ import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
                         .add("Contatos", ContatosFragment.class)
                         .create()
         );
-        ViewPager viewPager = findViewById(R.id.viewPager);
+        final ViewPager viewPager = findViewById(R.id.viewPager);
         viewPager.setAdapter(adapter);
         SmartTabLayout viewPagerTab = findViewById(R.id.viewPagerTab);
         viewPagerTab.setViewPager(viewPager);
@@ -71,10 +75,27 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                ConversasFragment fragment = (ConversasFragment) adapter.getPage(0);
-                if (newText != null && !newText.isEmpty()) {
-                    fragment.pesquisarConversas(newText);
+
+                switch (viewPager.getCurrentItem()){
+                    case 0: // metodo add do view pager funciona como uma lista baseando-se no indice
+                        ConversasFragment conversasFragment = (ConversasFragment) adapter.getPage(0);
+                        if (newText != null && !newText.isEmpty()) {
+                            conversasFragment.pesquisarConversas(newText);
+                        }else {
+                            conversasFragment.recarregarConversas();
+                        }
+                    break;
+                    case 1:
+                        ContatosFragment contatosFragment = (ContatosFragment) adapter.getPage(1);
+                        if (newText != null && !newText.isEmpty()) {
+                            contatosFragment.pesquisarContatos(newText);
+                        }else {
+                            contatosFragment.recarregarContatos();
+                        }
+                    break;
                 }
+
+
                 return true;
             }
         });
@@ -119,5 +140,6 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, ConfiguracoesActivity.class);
         startActivity(intent);
     }
+
 
 }

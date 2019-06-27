@@ -50,7 +50,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private TextView textViewnNome;
     private CircleImageView circleImageViewFoto;
-    private Usuario usuarioDestinatario;
+    private Usuario usuarioDestinatario, usuarioRemetente;
     private EditText editMensagem;
     private ImageView imagemCamera;
     private DatabaseReference database;
@@ -87,6 +87,7 @@ public class ChatActivity extends AppCompatActivity {
 
         //recuperar os dados do usuario remetente
         idUsuarioRemetente = UsuarioFirebase.getIdentificadorUsuario();
+        usuarioRemetente = UsuarioFirebase.getDadosUsuarioLogado();
 
         //recuperar os dados do usuario destinatario
         Bundle bundle = getIntent().getExtras();
@@ -209,7 +210,6 @@ public class ChatActivity extends AppCompatActivity {
     public void enviarMensagem(View view){
         String textoMensagem = editMensagem.getText().toString();
         if(!textoMensagem.isEmpty()){
-
             if(usuarioDestinatario != null){
                 Mensagem mensagem = new Mensagem();
                 mensagem.setIdUsuario(idUsuarioRemetente);
@@ -218,8 +218,10 @@ public class ChatActivity extends AppCompatActivity {
                 salvarMensagem(idUsuarioRemetente, idUsuarioDestinatario, mensagem);
                 //salvar mensagem para o destinatario
                 salvarMensagem(idUsuarioDestinatario, idUsuarioRemetente, mensagem);
-                //salvar a conversa
-                salvarConversa(mensagem, false);
+                //salvar a conversa remetente
+                salvarConversa(idUsuarioRemetente, idUsuarioDestinatario, usuarioDestinatario, mensagem, false);
+                //salvar a conversa destinatario
+                salvarConversa(idUsuarioDestinatario, idUsuarioRemetente, usuarioRemetente, mensagem, false);
             }else{
                 for(Usuario membro : grupo.getMembros()){
                     String idRemetenteGrupo = Base64Custom.codificarBase64(membro.getEmail());
@@ -228,9 +230,10 @@ public class ChatActivity extends AppCompatActivity {
                     Mensagem mensagem = new Mensagem();
                     mensagem.setIdUsuario(idUsuarioLogadoGrupo);
                     mensagem.setMensagem(textoMensagem);
+                    mensagem.setNome(usuarioRemetente.getNome());
 
                     salvarMensagem(idRemetenteGrupo, idUsuarioDestinatario, mensagem);
-                    salvarConversa(mensagem, true);
+                    salvarConversa(idRemetenteGrupo, idUsuarioDestinatario, usuarioDestinatario, mensagem, true);
                 }
             }
             editMensagem.setText("");
@@ -242,16 +245,16 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
-    private void salvarConversa(Mensagem msg, boolean isGroup){
+    private void salvarConversa(String idRemetente, String idDestinatario, Usuario usuarioExibicao,Mensagem msg, boolean isGroup){
         Conversa conversaRemente = new Conversa();
-        conversaRemente.setIdRemetente(idUsuarioRemetente);
-        conversaRemente.setIdDestinatario(idUsuarioDestinatario);
+        conversaRemente.setIdRemetente(idRemetente);
+        conversaRemente.setIdDestinatario(idDestinatario);
         conversaRemente.setUltimaMensagem(msg.getMensagem());
         if(isGroup){
             conversaRemente.setIsGroup("true");
             conversaRemente.setGrupo(grupo);
         }else{
-            conversaRemente.setUsuarioExibicao(usuarioDestinatario);
+            conversaRemente.setUsuarioExibicao(usuarioExibicao);
         }
         conversaRemente.salvar();
     }
